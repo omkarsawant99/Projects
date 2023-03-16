@@ -83,54 +83,12 @@ def draw_registration_result(source, target, transformation):
   source_temp.paint_uniform_color([1, 0.706, 0])
   target_temp.paint_uniform_color([0, 0.651, 0.929])
   source_temp.transform(transformation)
-  o3d.visualization.draw_geometries([source_temp, target_temp])
+  o3d.visualization.draw_geometries([source_temp, target_temp],
+                                    zoom=0.4459,
+                                    front=[0.9288, -0.2951, -0.2242],
+                                    lookat=[1.6784, 2.0612, 1.4451],
+                                    up=[-0.3402, -0.9189, -0.1996])
 
-def draw_geometries(geometries):
-    graph_objects = []
-
-    for geometry in geometries:
-        geometry_type = geometry.get_geometry_type()
-        
-        if geometry_type == o3d.geometry.Geometry.Type.PointCloud:
-            points = np.asarray(geometry.points)
-            colors = None
-            if geometry.has_colors():
-                colors = np.asarray(geometry.colors)
-            elif geometry.has_normals():
-                colors = (0.5, 0.5, 0.5) + np.asarray(geometry.normals) * 0.5
-            else:
-                geometry.paint_uniform_color((1.0, 0.0, 0.0))
-                colors = np.asarray(geometry.colors)
-
-            scatter_3d = go.Scatter3d(x=points[:,0], y=points[:,1], z=points[:,2], mode='markers', marker=dict(size=1, color=colors))
-            graph_objects.append(scatter_3d)
-
-        if geometry_type == o3d.geometry.Geometry.Type.TriangleMesh:
-            triangles = np.asarray(geometry.triangles)
-            vertices = np.asarray(geometry.vertices)
-            colors = None
-            if geometry.has_triangle_normals():
-                colors = (0.5, 0.5, 0.5) + np.asarray(geometry.triangle_normals) * 0.5
-                colors = tuple(map(tuple, colors))
-            else:
-                colors = (1.0, 0.0, 0.0)
-            
-            mesh_3d = go.Mesh3d(x=vertices[:,0], y=vertices[:,1], z=vertices[:,2], i=triangles[:,0], j=triangles[:,1], k=triangles[:,2], facecolor=colors, opacity=0.50)
-            graph_objects.append(mesh_3d)
-        
-    fig = go.Figure(
-        data=graph_objects,
-        layout=dict(
-            scene=dict(
-                xaxis=dict(visible=False),
-                yaxis=dict(visible=False),
-                zaxis=dict(visible=False)
-            )
-        )
-    )
-    fig.show()
-
-o3d.visualization.draw_geometries = draw_geometries
 
 """# ICP"""
 
@@ -170,6 +128,4 @@ end_target = o3d.geometry.PointCloud()
 end_target.points = o3d.utility.Vector3dVector(t_pts)
 
 """# Visualizing the results"""
-
-source_cloud = copy.deepcopy(source)
-o3d.visualization.draw_geometries([end_target, source_cloud])
+draw_registration_result(source, target, np.linalg.inv(final_T))
