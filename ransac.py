@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # Importing dependencies
-"""
 
 import open3d as o3d
 
